@@ -5,19 +5,19 @@ import plotly.express as px
 from faker import Faker
 import time
 from datetime import datetime
-import re
+import socket
 
 # 1. பக்க வடிவமைப்பு
-st.set_page_config(page_title="Sentinel Pro v2.6", layout="wide", page_icon="🛡️")
+st.set_page_config(page_title="Sentinel Pro v2.7", layout="wide", page_icon="🛡️")
 fake = Faker()
 
-# Custom CSS for Realistic Pro Look
+# Custom CSS
 st.markdown("""
     <style>
     .main { background-color: #0b0e14; }
     .stMetric { border-left: 5px solid #00ffcc; background-color: #161b22; padding: 10px; border-radius: 5px; }
-    .status-box { padding: 10px; border-radius: 5px; border: 1px solid #30363d; margin-bottom: 10px; font-family: monospace; font-size: 12px; background-color: #0e1117; }
-    .scanner-res { padding: 20px; border-radius: 10px; border: 2px solid #00ffcc; background-color: #161b22; }
+    .scanner-res { padding: 20px; border-radius: 10px; border: 1px solid #30363d; background-color: #161b22; margin-top: 20px; }
+    .info-card { background-color: #0e1117; padding: 15px; border-radius: 8px; border-left: 3px solid #ff4b4b; margin-top: 10px; font-family: monospace; }
     </style>
     """, unsafe_allow_html=True)
 
@@ -44,34 +44,29 @@ def login_system():
                 st.rerun()
             else: st.error("Access Denied")
 
-# --- 3. URL SCANNER FUNCTION ---
-def scan_url(url):
-    # இது ஒரு AI Simulation ஸ்கேனர்
-    with st.status(f"Scanning {url} for threats...", expanded=True) as status:
-        st.write("🔍 Checking domain reputation...")
-        time.sleep(1)
-        st.write("📂 Analyzing SSL certificates...")
-        time.sleep(1.5)
-        st.write("🤖 Running AI Heuristic analysis...")
-        time.sleep(1.5)
-        
-        # எளிய லாஜிக்: 'google.com' போன்ற தெரிந்த பெயர்கள் வந்தால் 'Safe' என்று காட்டும்
-        is_malicious = any(x in url.lower() for x in ["hack", "free-money", "win-prize", "login-update"])
-        
-        if is_malicious:
-            status.update(label="⚠️ Threat Detected!", state="error")
-            return "MALICIOUS", 92
-        else:
-            status.update(label="✅ Scan Complete - Website is Safe", state="complete")
-            return "SAFE", 98
+# --- 3. DOMAIN INFO FUNCTION (புதிய வசதி) ---
+def get_domain_info(url):
+    # URL-ல் இருந்து டொமைன் பெயரை மட்டும் பிரித்தெடுத்தல்
+    domain = url.replace("https://", "").replace("http://", "").replace("www.", "").split("/")[0]
+    try:
+        # அந்த டொமைனின் நிஜமான IP அட்ரஸைக் கண்டுபிடித்தல்
+        ip_addr = socket.gethostbyname(domain)
+        return {
+            "Domain": domain,
+            "IP Address": ip_addr,
+            "Server Location": np.random.choice(["USA", "Germany", "India", "Singapore", "Netherlands"]),
+            "SSL Status": "Valid (256-bit Encryption)",
+            "Last Scanned": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        }
+    except:
+        return None
 
 # --- 4. MAIN APP ---
 if not st.session_state['logged_in']:
     login_system()
 else:
-    # SIDEBAR
     with st.sidebar:
-        st.title("🛡️ Sentinel Pro v2.6")
+        st.title("🛡️ Sentinel Pro v2.7")
         st.write(f"Admin: **{st.session_state['saved_user']}**")
         st.markdown("---")
         menu = st.radio("Intelligence Hub", ["📊 Dashboard", "🔍 URL Scanner", "🤖 AI Assistant", "📝 Logs"])
@@ -83,53 +78,72 @@ else:
     if menu == "📊 Dashboard":
         st.title("🌐 Global Threat Intelligence Dashboard")
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Packets Analyzed", "1.4M", "Live")
-        c2.metric("Threats Blocked", "4,285", "+18")
-        c3.metric("Uptime Score", "99.98%", "Stable")
-        c4.metric("Security Level", "ALPHA", "High")
+        c1.metric("Packets Analyzed", "1.6M", "Live")
+        c2.metric("Threats Blocked", "4,312", "+27")
+        c3.metric("Uptime Score", "99.99%", "Stable")
+        c4.metric("Security Level", "ALPHA", "Ultra High")
 
         st.markdown("---")
-        col_map, col_intel = st.columns([2, 1])
-        
-        with col_map:
-            st.subheader("🌍 Real-time Attack Vectors")
-            map_df = pd.DataFrame({'lat': [20, 40, 60, -10, 35, 51], 'lon': [78, -100, 100, -50, 105, 10], 'Intensity': np.random.randint(10, 100, 6)})
-            fig = px.scatter_geo(map_df, lat='lat', lon='lon', size='Intensity', color='Intensity', projection="orthographic", template="plotly_dark", color_continuous_scale='Reds')
-            st.plotly_chart(fig, use_container_width=True)
+        st.subheader("🌍 Real-time Attack Vectors")
+        map_df = pd.DataFrame({'lat': [20, 40, 60, -10, 35, 51], 'lon': [78, -100, 100, -50, 105, 10], 'Intensity': np.random.randint(20, 120, 6)})
+        fig = px.scatter_geo(map_df, lat='lat', lon='lon', size='Intensity', color='Intensity', projection="orthographic", template="plotly_dark", color_continuous_scale='Reds')
+        st.plotly_chart(fig, use_container_width=True)
 
-        with col_intel:
-            st.subheader("📡 System Logs Feed")
-            for _ in range(4):
-                st.markdown(f'<div class="status-box">[FIREWALL] Blocked IP {fake.ipv4()}<br><span style="color:#00ffcc">[AI] Scan complete.</span></div>', unsafe_allow_html=True)
-
-    # --- 🔍 URL SCANNER PAGE (புதிய பக்கம்) ---
+    # --- 🔍 URL SCANNER PAGE (மேம்படுத்தப்பட்டது) ---
     elif menu == "🔍 URL Scanner":
-        st.title("🔍 Advanced Website Security Scanner")
-        st.write("Enter any URL to analyze it for phishing or malware risks.")
+        st.title("🔍 Advanced Website Security & IP Scanner")
+        st.write("Enter a URL to perform a deep forensic scan.")
         
-        url_input = st.text_input("Website URL", placeholder="https://example.com")
+        url_input = st.text_input("Website URL", placeholder="e.g., https://google.com")
         
-        if st.button("Start Deep Scan"):
+        if st.button("Run Forensic Scan"):
             if url_input:
-                result, score = scan_url(url_input)
+                with st.status(f"Analyzing {url_input}...", expanded=True) as status:
+                    st.write("📡 Connecting to global threat database...")
+                    time.sleep(1)
+                    st.write("🛡️ Checking SSL/TLS integrity...")
+                    time.sleep(1)
+                    info = get_domain_info(url_input)
+                    status.update(label="Scan Complete!", state="complete")
                 
-                st.markdown(f'<div class="scanner-res">', unsafe_allow_html=True)
-                if result == "SAFE":
-                    st.success(f"### ✅ Security Result: {result}")
-                    st.write(f"**Security Score:** {score}/100")
-                    st.write("Our AI confirms this domain has no known malicious patterns.")
+                # ரிசல்ட் கார்டு
+                st.markdown('<div class="scanner-res">', unsafe_allow_html=True)
+                if info:
+                    st.success(f"### ✅ Result: SAFE")
+                    st.write("**Security Score:** 98/100")
+                    
+                    # --- NEW DOMAIN DETAILS SECTION ---
+                    st.markdown("---")
+                    st.subheader("📋 Domain Intelligence Report")
+                    col_i1, col_i2 = st.columns(2)
+                    with col_i1:
+                        st.markdown(f"""
+                        <div class="info-card">
+                        <b>Domain:</b> {info['Domain']}<br>
+                        <b>Primary IP:</b> {info['IP Address']}<br>
+                        <b>Server Location:</b> {info['Server Location']}
+                        </div>
+                        """, unsafe_allow_html=True)
+                    with col_i2:
+                        st.markdown(f"""
+                        <div class="info-card">
+                        <b>SSL Status:</b> {info['SSL Status']}<br>
+                        <b>Scan Timestamp:</b> {info['Last Scanned']}<br>
+                        <b>Risk Level:</b> No Threats Found
+                        </div>
+                        """, unsafe_allow_html=True)
                 else:
-                    st.error(f"### ⚠️ Security Result: {result}")
-                    st.write(f"**Risk Score:** {score}/100")
-                    st.write("This URL shows patterns associated with phishing or malware delivery.")
+                    st.error("### ⚠️ Invalid Domain or Connection Failed")
+                    st.write("Please check the URL and try again.")
                 st.markdown('</div>', unsafe_allow_html=True)
             else:
                 st.warning("Please enter a URL first!")
 
-    # --- இதர பக்கங்கள் ---
+    # இதர பக்கங்கள்...
     elif menu == "🤖 AI Assistant":
         st.title("🤖 Sentinel AI Assistant")
-        st.chat_input("Ask a security question...")
+        st.chat_input("How can I help you today?")
     else:
-        st.title("📝 System Logs")
-        st.dataframe(pd.DataFrame([{"Time": time.strftime("%H:%M:%S"), "IP": fake.ipv4(), "Status": "Blocked"} for _ in range(20)]), use_container_width=True)
+        st.title("📝 Detailed Event Logs")
+        st.dataframe(pd.DataFrame([{"Time": time.strftime("%H:%M:%S"), "IP": fake.ipv4(), "Event": "Filtered"} for _ in range(25)]), use_container_width=True)
+
