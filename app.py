@@ -3,54 +3,64 @@ import pandas as pd
 import numpy as np
 import time
 
-# Page Configuration
-st.set_page_config(page_title="Sentinel-FRL: Autonomous Defense", layout="wide")
+# Page setup for Dark Theme look
+st.set_page_config(page_title="Sentinel-FRL Dashboard", layout="wide")
 
-# Dashboard Title
-st.title("🛡️ Sentinel-FRL: Autonomous Cloud Dashboard")
-st.subheader("Real-Time Privacy-Preserved Cyber Defense (PhD Prototype)")
+# Custom CSS for Dark Cards (Image-la irukura maari style)
+st.markdown("""
+    <style>
+    .metric-card {
+        background-color: #1E1E1E;
+        padding: 20px;
+        border-radius: 10px;
+        border-left: 5px solid #2E86C1;
+        color: white;
+    }
+    .stMetric {
+        background-color: #121212;
+        padding: 15px;
+        border-radius: 10px;
+        box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
-# --- Phase 1: Real-Time Metrics ---
-col1, col2, col3 = st.columns(3)
+# Main Title
+st.title("🛡️ Sentinel-FRL: Autonomous Self-Healing Dashboard")
+st.markdown("##### Robust Federated Learning | Blockchain-Verified | Adaptive Deception")
+
+# --- Top Metric Cards (Image-la irukura maari 4 columns) ---
+col1, col2, col3, col4 = st.columns(4)
+
 with col1:
-    st.metric(label="Active Mimicry Agents", value="2", delta="Stable", delta_color="normal")
+    st.metric(label="Active Mimicry Agents", value="2", delta="↑ Collaborating")
 with col2:
-    st.metric(label="Total Cloud Redirects", value="142", delta="↑ 12%", delta_color="inverse")
+    st.metric(label="Total Honey-pot Redirects", value="0", delta="↑ 0")
 with col3:
-    st.metric(label="System Integrity", value="98.4%", delta="SECURE", delta_color="normal")
+    st.metric(label="Global Model Integrity", value="SECURE", delta="⌛ Scanning...")
+with col4:
+    st.metric(label="Self-Healing Status", value="ACTIVE ✅", delta="System Patched")
 
 st.divider()
 
-# --- Phase 2: Live Battle Arena (Graph) ---
-st.markdown("### 📈 Hacker vs Defender: Live Mitigation Graph")
-# Creating simulated attack vs defense data
+# --- Live Battle Arena (Graph) ---
+st.markdown("### ⚔️ Hacker vs Defender: Live Battle Arena")
+
+# Real-time simulation graph
 chart_data = pd.DataFrame(
     np.random.randn(20, 2),
-    columns=['Inbound Attacks', 'AI Mitigation']
+    columns=['Attack Surface', 'Defense Response']
 )
 st.area_chart(chart_data)
 
-# --- Phase 3: Blockchain-Secured Logs Table ---
-st.markdown("### 📂 Global Blockchain-Secured Logs")
+# Status message like the image
+st.info("Searching for adversarial patterns in the network... 📡")
 
-# Simulated Logs for Demo
-logs_data = {
-    "Timestamp": ["09:05:12", "09:05:45", "09:06:10", "09:06:55"],
-    "Status": ["⚠️ ALERT", "🛡️ PATCHED", "✅ SECURE", "⚠️ ALERT"],
-    "Action": ["Inbound DDoS", "IP 192.168.1.5 Blacklisted", "Normal Traffic", "Brute Force Detected"],
-    "Reason": ["Traffic Spike", "Malicious Pattern", "User Auth", "Multiple Login Failure"],
-    "HashID": ["0x7f2a1...", "0xa31b4...", "0xb98c2...", "0xd44e9..."]
-}
-df_logs = pd.DataFrame(logs_data)
-st.table(df_logs)
-
-# --- Phase 4: AI Defense Insight ---
-with st.expander("🧠 View Autonomous Defense Insight"):
-    st.write("""
-    **Current Strategy:** Moving Target Defense (MTD)
-    - AI Agent has identified a recurring DDoS pattern from Region-X.
-    - Federated Global Model updated with new weights.
-    - False-Positive rate reduced to 0.02%.
-    """)
-
-st.info("System is monitoring network traffic in Federated Nodes... 📡")
+# --- Logs Table (Optional but professional) ---
+st.markdown("### 📂 Security Activity Logs")
+logs = pd.DataFrame({
+    "Time": ["09:14:01", "09:14:30"],
+    "Event": ["Node-1 Sync", "Pattern Detected"],
+    "Status": ["SUCCESS", "MITIGATED"]
+})
+st.table(logs)
