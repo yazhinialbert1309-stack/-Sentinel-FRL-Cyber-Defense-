@@ -4,76 +4,128 @@ import numpy as np
 import plotly.express as px
 from faker import Faker
 import time
+import requests
 
-# பக்கம் அமைப்பு (Page Config)
-st.set_page_config(page_title="Sentinel AI - Pro", layout="wide")
+# 1. பக்க வடிவமைப்பு (Page Layout)
+st.set_page_config(page_title="Sentinel AI - Cyber Defense Pro", layout="wide", page_icon="🛡️")
 fake = Faker()
 
-# --- 1. SIDEBAR (மெனு) ---
-st.sidebar.title("🛡️ Sentinel AI Pro")
-menu = st.sidebar.radio("Menu", ["Dashboard", "AI Threat Analysis", "Live Logs", "Settings"])
-st.sidebar.markdown("---")
-st.sidebar.success("System Status: Operational")
+# Custom CSS for Cyberpunk Look
+st.markdown("""
+    <style>
+    .main { background-color: #0e1117; }
+    .stMetric { background-color: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; }
+    </style>
+    """, unsafe_allow_index=True)
 
-if menu == "Dashboard":
+# --- 2. SIDEBAR (மெனு மற்றும் சிஸ்டம் ஸ்டேட்டஸ்) ---
+with st.sidebar:
+    st.title("🛡️ Sentinel AI Pro")
+    st.markdown("---")
+    menu = st.radio("Navigation", ["🌐 Dashboard", "🧠 AI Threat Analysis", "📝 System Logs", "⚙️ Settings"])
+    st.markdown("---")
+    st.success("System: Operational")
+    st.info(f"Last Scan: {time.strftime('%H:%M:%S')}")
+    if st.button("Reboot Firewall"):
+        st.warning("Restarting Security Layers...")
+        time.sleep(2)
+        st.rerun()
+
+# --- 3. DASHBOARD PAGE ---
+if "Dashboard" in menu:
     st.title("🌐 Cyber Defense Real-time Dashboard")
-    
-    # --- 2. ADVANCED METRICS (மேம்பட்ட அளவீடுகள்) ---
-    col1, col2, col3, col4 = st.columns(4)
-    col1.metric("Total Attacks Blocked", "1,284", "+12%")
-    col2.metric("System Integrity", "99.2%", "+0.5%")
-    col3.metric("AI Confidence", "94%", "-1%")
-    col4.metric("Active Threats", "0", "-100%")
+    st.write("AI-Powered Network Monitoring & Threat Mitigation")
 
-    # --- 3. DYNAMIC CHARTS (கிராஃப்கள்) ---
-    st.markdown("### 📊 Attack Vectors vs AI Mitigation")
-    chart_data = pd.DataFrame({
-        'Time': list(range(25)),
-        'Threat Level': np.random.randint(10, 80, 25),
-        'AI Defense': np.random.randint(20, 100, 25)
-    })
-    fig = px.line(chart_data, x='Time', y=['Threat Level', 'AI Defense'], 
-                  color_discrete_map={"Threat Level": "red", "AI Defense": "green"},
-                  template="plotly_dark")
-    st.plotly_chart(fig, use_container_width=True)
+    # மெட்ரிக்ஸ் (Metrics)
+    m1, m2, m3, m4 = st.columns(4)
+    m1.metric("Attacks Blocked", "1,482", "+14%", help="Total threats neutralized by AI")
+    m2.metric("Network Integrity", "99.8%", "0.2%")
+    m3.metric("AI Confidence", "96.4%", "-0.1%")
+    m4.metric("Active Sessions", "24", "4")
 
-    # --- 4. AI PREDICTION & NOTIFICATIONS (அலர்ட் சிஸ்டம்) ---
-    st.info("🤖 **AI Prediction:** Low risk of DDoS attack in the next 30 minutes.")
-    
-    if st.button("Manual System Scan"):
-        with st.status("Scanning Network...", expanded=True) as status:
-            st.write("Checking Open Ports...")
-            time.sleep(1)
-            st.write("Analyzing Traffic Patterns...")
-            time.sleep(1)
-            st.write("Verifying SSL Certificates...")
-            status.update(label="Scan Complete! No threats found.", state="complete", expanded=False)
-        st.toast("Scan Successful!", icon='✅')
+    st.markdown("---")
 
-elif menu == "AI Threat Analysis":
-    st.title("🧠 AI Anomaly Detection")
-    st.write("Upload your log file to detect hidden threats using Machine Learning.")
-    uploaded_file = st.file_uploader("Choose a CSV log file")
-    if uploaded_file:
-        st.success("File uploaded! AI is analyzing patterns...")
+    # கிராஃப்கள் (Charts)
+    col_left, col_right = st.columns([2, 1])
 
-elif menu == "Live Logs":
-    st.title("📝 Live System Logs")
-    log_data = []
-    for _ in range(10):
-        log_data.append({
-            "Timestamp": time.strftime("%H:%M:%S"),
-            "Event": fake.sentence(nb_words=4),
-            "Level": np.random.choice(["INFO", "WARNING", "CRITICAL"]),
-            "IP Address": fake.ipv4()
+    with col_left:
+        st.subheader("📊 Live Traffic & Threat Mitigation")
+        # 21 இண்டர்வல்ஸ் கணக்குப்படி டேட்டா
+        intervals = list(range(21))
+        chart_data = pd.DataFrame({
+            'Intervals': intervals,
+            'Threat Intensity': np.random.randint(10, 60, 21),
+            'AI Defense Power': np.random.randint(40, 100, 21)
         })
-    df_logs = pd.DataFrame(log_data)
-    st.table(df_logs)
+        fig = px.area(chart_data, x='Intervals', y=['Threat Intensity', 'AI Defense Power'],
+                      color_discrete_map={"Threat Intensity": "#FF4B4B", "AI Defense Power": "#00CC96"},
+                      template="plotly_dark")
+        st.plotly_chart(fig, use_container_width=True)
 
-# --- CHATBOT (சின்ன சாட்போட்) ---
+    with col_right:
+        st.subheader("🌍 Top Attack Sources")
+        map_data = pd.DataFrame({
+            'Country': ['USA', 'China', 'Russia', 'Germany', 'India'],
+            'Attacks': [450, 380, 310, 120, 90]
+        })
+        fig_pie = px.pie(map_data, values='Attacks', names='Country', hole=0.4, 
+                         color_discrete_sequence=px.colors.sequential.RdBu)
+    st.plotly_chart(fig_pie, use_container_width=True)
+
+    # AI Prediction Alert
+    st.warning("🤖 **AI Prediction:** High probability of SQL Injection attempt detected in Port 8080. Automating Patch...")
+
+# --- 4. AI THREAT ANALYSIS PAGE ---
+elif "AI Threat Analysis" in menu:
+    st.title("🧠 Advanced AI Anomaly Detection")
+    st.write("Upload server logs to identify patterns using Machine Learning.")
+    
+    uploaded_file = st.file_uploader("Upload Log File (CSV/TXT)", type=['csv', 'txt'])
+    if uploaded_file:
+        with st.spinner("AI is analyzing patterns..."):
+            time.sleep(3)
+            st.success("Analysis Complete: 2 Suspicious IP patterns identified.")
+    
+    st.info("💡 **Tip:** Use our pre-trained 'Mimicry Agent' to bait hackers into a Honeypot.")
+
+# --- 5. SYSTEM LOGS PAGE (LIVE FEED) ---
+elif "System Logs" in menu:
+    st.title("📝 Real-time Security Logs")
+    
+    if st.button("Refresh Live Logs"):
+        st.rerun()
+
+    log_list = []
+    for _ in range(15):
+        log_list.append({
+            "Timestamp": time.strftime("%H:%M:%S"),
+            "Source IP": fake.ipv4(),
+            "Event": np.random.choice(["Brute Force Attempt", "Port Scan", "Unauthorized Access", "File Integrity Check"]),
+            "Severity": np.random.choice(["Low", "Medium", "High", "Critical"]),
+            "Action": "Blocked by AI"
+        })
+    
+    df_logs = pd.DataFrame(log_list)
+    
+    # Severity கலர் கோடிங்
+    def color_severity(val):
+        color = 'red' if val == 'Critical' else 'orange' if val == 'High' else 'yellow' if val == 'Medium' else 'white'
+        return f'color: {color}'
+
+    st.table(df_logs.style.applymap(color_severity, subset=['Severity']))
+
+# --- 6. SETTINGS ---
+else:
+    st.title("⚙️ System Settings")
+    st.toggle("Enable Autonomous Defense", value=True)
+    st.toggle("Dark Mode (Force)", value=True)
+    st.slider("AI Sensitivity Level", 0, 100, 85)
+    st.text_input("Admin Notification Email", "admin@sentinel-ai.com")
+
+# --- CHATBOT FLOATING ASSISTANT ---
 st.markdown("---")
-with st.expander("💬 Sentinel AI Assistant"):
-    user_input = st.text_input("Ask me anything about your security:")
-    if user_input:
-        st.write("Sentinel AI: I am analyzing your request regarding '" + user_input + "'. Currently, all systems are secure.")
+with st.expander("💬 Chat with Sentinel Assistant"):
+    query = st.text_input("Ask a security question:")
+    if query:
+        st.write(f"**Sentinel AI:** Analyzing '{query}'... Based on current traffic, your firewall is 100% secure.")
 
