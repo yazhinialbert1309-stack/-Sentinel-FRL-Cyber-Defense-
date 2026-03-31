@@ -1,66 +1,36 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import time
 
-# Page setup for Dark Theme look
+# Page Layout
 st.set_page_config(page_title="Sentinel-FRL Dashboard", layout="wide")
+st.title("🛡️ Sentinel-FRL: Autonomous Cloud Dashboard")
+st.subheader("Real-Time Privacy-Preserved Cyber Defense")
 
-# Custom CSS for Dark Cards (Image-la irukura maari style)
-st.markdown("""
-    <style>
-    .metric-card {
-        background-color: #1E1E1E;
-        padding: 20px;
-        border-radius: 10px;
-        border-left: 5px solid #2E86C1;
-        color: white;
-    }
-    .stMetric {
-        background-color: #121212;
-        padding: 15px;
-        border-radius: 10px;
-        box-shadow: 2px 2px 10px rgba(0,0,0,0.5);
-    }
-    </style>
-    """, unsafe_allow_html=True)
-
-# Main Title
-st.title("🛡️ Sentinel-FRL: Autonomous Self-Healing Dashboard")
-st.markdown("##### Robust Federated Learning | Blockchain-Verified | Adaptive Deception")
-
-# --- Top Metric Cards (Image-la irukura maari 4 columns) ---
-col1, col2, col3, col4 = st.columns(4)
-
-with col1:
-    st.metric(label="Active Mimicry Agents", value="2", delta="↑ Collaborating")
-with col2:
-    st.metric(label="Total Honey-pot Redirects", value="0", delta="↑ 0")
-with col3:
-    st.metric(label="Global Model Integrity", value="SECURE", delta="⌛ Scanning...")
-with col4:
-    st.metric(label="Self-Healing Status", value="ACTIVE ✅", delta="System Patched")
+# --- Phase 1: Metrics (Ippo irukura maari) ---
+col1, col2, col3 = st.columns(3)
+col1.metric("Active Mimicry Agents", "2", "↑ Stable")
+col2.metric("Total Cloud Redirects", "142", "↑ 12%")
+col3.metric("System Integrity", "SECURE", "98.4%")
 
 st.divider()
 
-# --- Live Battle Arena (Graph) ---
-st.markdown("### ⚔️ Hacker vs Defender: Live Battle Arena")
+# --- Phase 2: Live Battle Arena (Graph logic add panniyachu) ---
+st.markdown("### 📈 Hacker vs Defender: Live Mitigation Graph")
+# Creating dummy data for graph to show up
+chart_data = pd.DataFrame(np.random.randn(20, 2), columns=['Attacks', 'AI Mitigation'])
+st.area_chart(chart_data) # Ithu thaan graph-ai kaattum
 
-# Real-time simulation graph
-chart_data = pd.DataFrame(
-    np.random.randn(20, 2),
-    columns=['Attack Surface', 'Defense Response']
-)
-st.area_chart(chart_data)
+# --- Phase 3: Blockchain Logs (Empty table-ku pathila data) ---
+st.markdown("### 📂 Global Blockchain-Secured Logs")
+logs_data = {
+    "Timestamp": ["09:05:12", "09:05:45", "09:06:10"],
+    "Status": ["⚠️ ALERT", "🛡️ PATCHED", "✅ SECURE"],
+    "Action": ["Inbound DDoS", "IP Blacklisted", "Normal Traffic"],
+    "Reason": ["Traffic Spike", "Malicious Pattern", "User Auth"],
+    "HashID": ["0x7f2a1...", "0xa31b4...", "0xb98c2..."]
+}
+df_logs = pd.DataFrame(logs_data)
+st.table(df_logs) # Ippo intha table-la data varum
 
-# Status message like the image
 st.info("Searching for adversarial patterns in the network... 📡")
-
-# --- Logs Table (Optional but professional) ---
-st.markdown("### 📂 Security Activity Logs")
-logs = pd.DataFrame({
-    "Time": ["09:14:01", "09:14:30"],
-    "Event": ["Node-1 Sync", "Pattern Detected"],
-    "Status": ["SUCCESS", "MITIGATED"]
-})
-st.table(logs)
