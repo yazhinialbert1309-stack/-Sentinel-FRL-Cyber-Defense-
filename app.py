@@ -13,7 +13,7 @@ st.title("🛡️ Sentinel-FRL: Autonomous Cyber Defense")
 col1, col2 = st.columns([3,1])
 with col1:
     chart_data = pd.DataFrame({
-        'Intervals': list(range(20)),
+        'Intervals': list(range(21)),
         'Attacks': [0]*10 + [1]*10 + [np.random.randint(0,2)],
         'AI Mitigation': [2]*21
     })
