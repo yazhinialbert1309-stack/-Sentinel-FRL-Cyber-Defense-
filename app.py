@@ -4,48 +4,44 @@ import numpy as np
 import plotly.express as px
 from faker import Faker
 import time
+from datetime import datetime
 
-# 1. பக்க வடிவமைப்பு
-st.set_page_config(page_title="Sentinel AI Pro", layout="wide", page_icon="🛡️")
+# 1. பக்க வடிவமைப்பு (Page Config)
+st.set_page_config(page_title="Sentinel AI Pro v2.0", layout="wide", page_icon="🛡️")
 fake = Faker()
 
-# Custom CSS for Professional Look
+# Custom CSS for Neon Cyberpunk Look
 st.markdown("""
     <style>
-    .main { background-color: #0e1117; }
-    .stMetric { background-color: #161b22; border: 1px solid #30363d; padding: 15px; border-radius: 10px; }
-    div[data-testid="stMetricValue"] > div { color: #00CC96; }
+    .main { background-color: #0b0e14; }
+    [data-testid="stMetricValue"] { color: #00ffcc; font-family: 'Courier New', Courier, monospace; }
+    .stProgress > div > div > div > div { background-image: linear-gradient(to right, #ff4b4b , #00ffcc); }
+    .sidebar-text { font-size: 14px; color: #808080; }
     </style>
     """, unsafe_allow_html=True)
 
 # --- 2. LOGIN & SETUP LOGIC ---
-if 'setup_done' not in st.session_state:
-    st.session_state['setup_done'] = False
-if 'logged_in' not in st.session_state:
-    st.session_state['logged_in'] = False
-if 'chat_history' not in st.session_state:
-    st.session_state['chat_history'] = []
+if 'setup_done' not in st.session_state: st.session_state['setup_done'] = False
+if 'logged_in' not in st.session_state: st.session_state['logged_in'] = False
+if 'chat_history' not in st.session_state: st.session_state['chat_history'] = []
 
 def login_system():
     if not st.session_state['setup_done']:
         st.title("🛡️ Sentinel AI - Initial Setup")
-        st.subheader("Create your Admin Credentials")
-        new_user = st.text_input("Create Username")
-        new_pass = st.text_input("Create Password", type="password")
-        confirm_pass = st.text_input("Confirm Password", type="password")
-        if st.button("Save & Continue"):
-            if new_user and new_pass == confirm_pass:
-                st.session_state['saved_user'] = new_user
-                st.session_state['saved_pass'] = new_pass
+        u = st.text_input("Create Admin Username")
+        p = st.text_input("Create Password", type="password")
+        cp = st.text_input("Confirm Password", type="password")
+        if st.button("Set Credentials"):
+            if u and p == cp:
+                st.session_state['saved_user'], st.session_state['saved_pass'] = u, p
                 st.session_state['setup_done'] = True
                 st.rerun()
-            else: st.error("Check passwords again!")
     else:
         st.title("🔐 Sentinel AI - Secure Login")
-        u = st.text_input("Username")
-        p = st.text_input("Password", type="password")
-        if st.button("Unlock Dashboard"):
-            if u == st.session_state['saved_user'] and p == st.session_state['saved_pass']:
+        u_in = st.text_input("Username")
+        p_in = st.text_input("Password", type="password")
+        if st.button("Access Command Center"):
+            if u_in == st.session_state['saved_user'] and p_in == st.session_state['saved_pass']:
                 st.session_state['logged_in'] = True
                 st.rerun()
             else: st.error("Access Denied!")
@@ -54,74 +50,86 @@ def login_system():
 if not st.session_state['logged_in']:
     login_system()
 else:
-    # SIDEBAR
+    # --- SIDEBAR (Updated) ---
     with st.sidebar:
-        st.title("🛡️ Sentinel AI Pro")
-        st.write(f"Logged in as: **{st.session_state['saved_user']}**")
+        st.title("🛡️ Sentinel Pro v2.0")
+        st.markdown(f"**Admin:** {st.session_state['saved_user']}")
+        st.markdown(f"📅 **Date:** {datetime.now().strftime('%d-%m-%Y')}")
+        st.markdown(f"⏰ **Time:** {datetime.now().strftime('%H:%M:%S')}")
+        
+        st.markdown("---")
+        # System Health Progress Bar
+        st.write("System Integrity")
+        st.progress(98)
+        st.write("Firewall Strength")
+        st.progress(85)
+        
+        st.markdown("---")
+        menu = st.radio("Navigation", ["🌐 Global Dashboard", "🤖 AI Assistant", "📝 Live Logs", "⚙️ Admin Settings"])
+        
         if st.button("Logout"):
             st.session_state['logged_in'] = False
             st.rerun()
-        st.markdown("---")
-        menu = st.radio("Navigation", ["🌐 Dashboard", "🤖 AI Security Assistant", "📝 Logs", "⚙️ Settings"])
-        st.success("System: Active")
 
-    # --- 4. DASHBOARD PAGE (With New Global Map) ---
-    if menu == "🌐 Dashboard":
+    # --- 4. DASHBOARD PAGE ---
+    if menu == "🌐 Global Dashboard":
         st.title("🌐 Global Cyber Defense Dashboard")
         
-        # மெட்ரிக்ஸ்
+        # New Metrics Style
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Attacks Neutralized", "1,524", "+14%")
-        m2.metric("System Integrity", "99.9%", "0.1%")
-        m3.metric("AI Confidence", "97.2%", "1.2%")
-        m4.metric("Live Threats", "0", "-100%")
-        
+        m1.metric("Attacks Neutralized", "2,845", "+18%")
+        m2.metric("Network Uptime", "99.99%", "0.01%")
+        m3.metric("Security Score", "94/100", "Gold")
+        m4.metric("Active Encryptions", "128-bit", "Secure")
+
         st.markdown("---")
-        
-        # --- NEW GLOBAL ATTACK MAP ---
-        st.subheader("🌍 Real-time Global Threat Map")
+
+        # --- UPDATED GLOBAL MAP ---
+        st.subheader("🌍 Real-time Threat Trajectories")
         map_df = pd.DataFrame({
-            'Country': ['USA', 'China', 'Russia', 'India', 'Germany', 'Brazil', 'Canada', 'Australia'],
-            'Threat Count': np.random.randint(10, 100, 8),
-            'lat': [37.09, 35.86, 61.52, 20.59, 51.16, -14.23, 56.13, -25.27],
-            'lon': [-95.71, 104.19, 105.31, 78.96, 10.45, -51.92, -106.34, 133.77]
+            'Country': ['USA', 'China', 'Russia', 'India', 'Germany', 'Brazil', 'Canada', 'Australia', 'Japan', 'France'],
+            'Threat Count': np.random.randint(20, 150, 10),
+            'lat': [37.09, 35.86, 61.52, 20.59, 51.16, -14.23, 56.13, -25.27, 36.20, 46.22],
+            'lon': [-95.71, 104.19, 105.31, 78.96, 10.45, -51.92, -106.34, 133.77, 138.25, 2.21]
         })
         fig_map = px.scatter_geo(map_df, lat='lat', lon='lon', hover_name='Country', 
                                  size='Threat Count', color='Threat Count',
-                                 projection="natural earth", template="plotly_dark",
-                                 color_continuous_scale=px.colors.sequential.Reds)
+                                 projection="orthographic", # உலக உருண்டை (Globe) தோற்றம்
+                                 template="plotly_dark",
+                                 color_continuous_scale='Turbo') # இன்னும் வண்ணமயமாக
         st.plotly_chart(fig_map, use_container_width=True)
 
         st.markdown("---")
         c1, c2 = st.columns(2)
         with c1:
-            st.subheader("📊 Defense Analytics")
-            df = pd.DataFrame({'Time': list(range(21)), 'Intensity': np.random.randint(20, 80, 21)})
-            st.plotly_chart(px.line(df, x='Time', y='Intensity', template="plotly_dark"), use_container_width=True)
+            st.subheader("📊 Neural Defense Analytics")
+            chart_df = pd.DataFrame({'Time': list(range(21)), 'Threats': np.random.randint(10, 60, 21), 'Mitigation': np.random.randint(40, 100, 21)})
+            fig_line = px.area(chart_df, x='Time', y=['Threats', 'Mitigation'], template="plotly_dark", color_discrete_map={"Threats": "#ff4b4b", "Mitigation": "#00ffcc"})
+            st.plotly_chart(fig_line, use_container_width=True)
         with c2:
-            st.subheader("📝 Recent Security Events")
-            st.table(pd.DataFrame([{"Time": time.strftime("%H:%M:%S"), "IP": fake.ipv4(), "Action": "Blocked"} for _ in range(5)]))
+            st.subheader("📝 Immediate Response Logs")
+            log_data = [{"Time": time.strftime("%H:%M:%S"), "Source": fake.ipv4(), "Action": "Auto-Blocked"} for _ in range(6)]
+            st.table(pd.DataFrame(log_data))
 
-    # --- 5. AI SECURITY ASSISTANT PAGE ---
-    elif menu == "🤖 AI Security Assistant":
-        st.title("🤖 Sentinel AI - Advanced Assistant")
-        for message in st.session_state.chat_history:
-            with st.chat_message(message["role"]): st.markdown(message["content"])
-
-        if prompt := st.chat_input("Ask a security question..."):
-            st.session_state.chat_history.append({"role": "user", "content": prompt})
-            with st.chat_message("user"): st.markdown(prompt)
-            
+    # --- 5. AI ASSISTANT ---
+    elif menu == "🤖 AI Assistant":
+        st.title("🤖 Sentinel AI Intelligence")
+        for msg in st.session_state.chat_history:
+            with st.chat_message(msg["role"]): st.markdown(msg["content"])
+        if p := st.chat_input("Ask Sentinel..."):
+            st.session_state.chat_history.append({"role": "user", "content": p})
+            with st.chat_message("user"): st.markdown(p)
             with st.chat_message("assistant"):
-                response = "Sentinel AI is analyzing your request... Based on our current network metrics, we suggest monitoring for any suspicious patterns related to your query."
-                st.markdown(response)
-                st.session_state.chat_history.append({"role": "assistant", "content": response})
+                res = "Accessing Neural Database... No active breaches related to your query. System remains secure."
+                st.markdown(res)
+                st.session_state.chat_history.append({"role": "assistant", "content": res})
 
-    # --- இதர பக்கங்கள் ---
-    elif menu == "📝 Logs":
-        st.title("📝 System Event Logs")
-        st.dataframe(pd.DataFrame([{"Timestamp": time.strftime("%H:%M:%S"), "Source": fake.ipv4(), "Event": "Network Scan Detected"} for _ in range(20)]), use_container_width=True)
+    # Other pages remain updated with same logic...
+    elif menu == "📝 Live Logs":
+        st.title("📝 Live System Telemetry")
+        st.dataframe(pd.DataFrame([{"ID": i, "IP": fake.ipv4(), "Status": "Filtered"} for i in range(50)]), use_container_width=True)
     else:
         st.title("⚙️ Admin Settings")
-        st.toggle("Autonomous AI Defense Mode", value=True)
-        st.slider("AI Sensitivity Level", 0, 100, 85)
+        st.toggle("Deep Packet Inspection", value=True)
+        st.slider("AI Mitigation Speed (ms)", 10, 500, 100)
+
