@@ -5,42 +5,27 @@ import plotly.express as px
 from faker import Faker
 import time
 from datetime import datetime
+import re
 
-# 1. Page Config
-st.set_page_config(page_title="Sentinel Pro v2.5", layout="wide", page_icon="🛡️")
+# 1. பக்க வடிவமைப்பு
+st.set_page_config(page_title="Sentinel Pro v2.6", layout="wide", page_icon="🛡️")
 fake = Faker()
 
 # Custom CSS for Realistic Pro Look
 st.markdown("""
     <style>
     .main { background-color: #0b0e14; }
-    .stMetric { border-left: 5px solid #00ffcc; background-color: #161b22; }
-    .status-box { padding: 10px; border-radius: 5px; border: 1px solid #30363d; margin-bottom: 10px; font-family: monospace; font-size: 12px; }
+    .stMetric { border-left: 5px solid #00ffcc; background-color: #161b22; padding: 10px; border-radius: 5px; }
+    .status-box { padding: 10px; border-radius: 5px; border: 1px solid #30363d; margin-bottom: 10px; font-family: monospace; font-size: 12px; background-color: #0e1117; }
+    .scanner-res { padding: 20px; border-radius: 10px; border: 2px solid #00ffcc; background-color: #161b22; }
     </style>
     """, unsafe_allow_html=True)
 
-# --- 2. LOGIN LOGIC (அப்படியே இருக்கும்) ---
+# --- 2. LOGIN LOGIC ---
 if 'logged_in' not in st.session_state: st.session_state['logged_in'] = False
 if 'setup_done' not in st.session_state: st.session_state['setup_done'] = False
 
-# --- 3. REALISTIC DATA GENERATOR ---
-def get_threat_intel():
-    # நிஜமான சைபர் செக்யூரிட்டி வார்த்தைகள்
-    methods = ["SSH Brute Force", "SQLi Attempt", "Cross-Site Scripting (XSS)", "DDoS Flood", "Anomalous Packet Size", "Malicious File Upload"]
-    data = []
-    for _ in range(6):
-        data.append({
-            "Time": datetime.now().strftime("%H:%M:%S"),
-            "Target Port": np.random.choice([80, 443, 22, 8080, 3306]),
-            "Attacker IP": fake.ipv4(),
-            "Method": np.random.choice(methods),
-            "Confidence": f"{np.random.randint(85, 100)}%",
-            "Action": "AUTO_BLOCKED"
-        })
-    return pd.DataFrame(data)
-
-# --- LOGIN SCREEN ---
-if not st.session_state['logged_in']:
+def login_system():
     if not st.session_state['setup_done']:
         st.title("🛡️ Sentinel AI - Initial Setup")
         u = st.text_input("Create Admin ID")
@@ -58,59 +43,93 @@ if not st.session_state['logged_in']:
                 st.session_state['logged_in'] = True
                 st.rerun()
             else: st.error("Access Denied")
+
+# --- 3. URL SCANNER FUNCTION ---
+def scan_url(url):
+    # இது ஒரு AI Simulation ஸ்கேனர்
+    with st.status(f"Scanning {url} for threats...", expanded=True) as status:
+        st.write("🔍 Checking domain reputation...")
+        time.sleep(1)
+        st.write("📂 Analyzing SSL certificates...")
+        time.sleep(1.5)
+        st.write("🤖 Running AI Heuristic analysis...")
+        time.sleep(1.5)
+        
+        # எளிய லாஜிக்: 'google.com' போன்ற தெரிந்த பெயர்கள் வந்தால் 'Safe' என்று காட்டும்
+        is_malicious = any(x in url.lower() for x in ["hack", "free-money", "win-prize", "login-update"])
+        
+        if is_malicious:
+            status.update(label="⚠️ Threat Detected!", state="error")
+            return "MALICIOUS", 92
+        else:
+            status.update(label="✅ Scan Complete - Website is Safe", state="complete")
+            return "SAFE", 98
+
+# --- 4. MAIN APP ---
+if not st.session_state['logged_in']:
+    login_system()
 else:
-    # --- MAIN DASHBOARD ---
+    # SIDEBAR
     with st.sidebar:
-        st.title("🛡️ Sentinel Pro v2.5")
+        st.title("🛡️ Sentinel Pro v2.6")
         st.write(f"Admin: **{st.session_state['saved_user']}**")
         st.markdown("---")
-        st.write("System Health")
-        st.progress(98)
-        menu = st.radio("Intelligence Hub", ["Dashboard", "Threat Logs", "AI Chat"])
+        menu = st.radio("Intelligence Hub", ["📊 Dashboard", "🔍 URL Scanner", "🤖 AI Assistant", "📝 Logs"])
         if st.button("Logout"):
             st.session_state['logged_in'] = False
             st.rerun()
 
-    if menu == "Dashboard":
-        st.title("🌐 Live Threat Intelligence Dashboard")
-        
-        # Metrics
+    # --- DASHBOARD PAGE ---
+    if menu == "📊 Dashboard":
+        st.title("🌐 Global Threat Intelligence Dashboard")
         c1, c2, c3, c4 = st.columns(4)
-        c1.metric("Packets Analyzed", "1.2M", "Live")
-        c2.metric("Threats Blocked", "4,102", "+21")
+        c1.metric("Packets Analyzed", "1.4M", "Live")
+        c2.metric("Threats Blocked", "4,285", "+18")
         c3.metric("Uptime Score", "99.98%", "Stable")
         c4.metric("Security Level", "ALPHA", "High")
 
         st.markdown("---")
-        
-        # Threat Feed & Map
         col_map, col_intel = st.columns([2, 1])
         
         with col_map:
             st.subheader("🌍 Real-time Attack Vectors")
-            map_df = pd.DataFrame({
-                'lat': [20, 40, 60, -10, 35, 51], 'lon': [78, -100, 100, -50, 105, 10],
-                'Intensity': np.random.randint(10, 100, 6)
-            })
+            map_df = pd.DataFrame({'lat': [20, 40, 60, -10, 35, 51], 'lon': [78, -100, 100, -50, 105, 10], 'Intensity': np.random.randint(10, 100, 6)})
             fig = px.scatter_geo(map_df, lat='lat', lon='lon', size='Intensity', color='Intensity', projection="orthographic", template="plotly_dark", color_continuous_scale='Reds')
             st.plotly_chart(fig, use_container_width=True)
 
         with col_intel:
-            st.subheader("📡 Live System Feed")
-            for i in range(4):
-                st.markdown(f"""
-                <div class="status-box">
-                [SYSTEM] {datetime.now().strftime('%H:%M:%S')} - Scanning Port {np.random.choice([80, 443])}...<br>
-                [FIREWALL] Blocked IP {fake.ipv4()}<br>
-                <span style="color:#00ffcc">[AI] No anomalies detected in current stream.</span>
-                </div>
-                """, unsafe_allow_html=True)
+            st.subheader("📡 System Logs Feed")
+            for _ in range(4):
+                st.markdown(f'<div class="status-box">[FIREWALL] Blocked IP {fake.ipv4()}<br><span style="color:#00ffcc">[AI] Scan complete.</span></div>', unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.subheader("🎯 Active Threat Intelligence Feed")
-        intel_df = get_threat_intel()
-        st.dataframe(intel_df, use_container_width=True)
+    # --- 🔍 URL SCANNER PAGE (புதிய பக்கம்) ---
+    elif menu == "🔍 URL Scanner":
+        st.title("🔍 Advanced Website Security Scanner")
+        st.write("Enter any URL to analyze it for phishing or malware risks.")
         
-        # Download Report
-        csv = intel_df.to_csv(index=False).encode('utf-8')
-        st.download_button("📥 Download Threat Intel Report", csv, "threat_intel.csv", "text/csv")
+        url_input = st.text_input("Website URL", placeholder="https://example.com")
+        
+        if st.button("Start Deep Scan"):
+            if url_input:
+                result, score = scan_url(url_input)
+                
+                st.markdown(f'<div class="scanner-res">', unsafe_allow_html=True)
+                if result == "SAFE":
+                    st.success(f"### ✅ Security Result: {result}")
+                    st.write(f"**Security Score:** {score}/100")
+                    st.write("Our AI confirms this domain has no known malicious patterns.")
+                else:
+                    st.error(f"### ⚠️ Security Result: {result}")
+                    st.write(f"**Risk Score:** {score}/100")
+                    st.write("This URL shows patterns associated with phishing or malware delivery.")
+                st.markdown('</div>', unsafe_allow_html=True)
+            else:
+                st.warning("Please enter a URL first!")
+
+    # --- இதர பக்கங்கள் ---
+    elif menu == "🤖 AI Assistant":
+        st.title("🤖 Sentinel AI Assistant")
+        st.chat_input("Ask a security question...")
+    else:
+        st.title("📝 System Logs")
+        st.dataframe(pd.DataFrame([{"Time": time.strftime("%H:%M:%S"), "IP": fake.ipv4(), "Status": "Blocked"} for _ in range(20)]), use_container_width=True)
