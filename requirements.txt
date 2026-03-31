@@ -3,3 +3,4 @@ pandas
 numpy
 flwr==1.4.0
 supabase
+plotly
